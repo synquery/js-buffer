@@ -1,5 +1,5 @@
 /**
- * js-buffer v1.0.0
+ * js-buffer v1.0.1
  *
  * a node.js-like Buffer module in browsers
  *

@@ -9,29 +9,42 @@
   function Buffer(arg0, arg1) {
     var type = typeof arg0;
     if('object' === type && null !== arg0)
-      // Uint8Array in Sfari 5.1 doesn't have constructor.name.
-      type = Uint8Array === arg0.constructor ? 'Uint8Array': arg0.constructor.name;
+      type = (function(c) {
+        var _type;
+        if(Array === c)
+          _type = 'Array';
+        else if(ArrayBuffer === c)
+          _type = 'ArrayBuffer';
+        else if(Uint8Array === c)
+          _type = 'Uint8Array';
+        return _type;
+      })(arg0.constructor);
 
     if(!(type in initialize))
       throw new Error('First argument needs to be a number, array or string.');
 
     var arr = this._parent = initialize[type](arg0, arg1);
 
-    this.__defineGetter__('length', function() {
-      return arr.length;
+    Object.defineProperty(this, 'length', {
+      get: function() {
+        return arr.length;
+      }
     });
 
     var i, len;
     for(i = 0, len = arr.length; i < len; i++)
-      this.__defineGetter__('' + i, (function(i) {
-        return function() {
-          return arr[i];
-        };
-      })(i)), this.__defineSetter__('' + i, (function(i) {
-        return function(_byte) {
-          arr[i] = _byte;
-        };
-      })(i));
+      Object.defineProperty(this, '' + i, {
+        get: (function(i) {
+          return function() {
+            return arr[i];
+          };
+        })(i),
+        set: (function(i) {
+          return function(_byte) {
+            arr[i] = _byte;
+          };
+        })(i)
+      });
   }
   Buffer.prototype = new ArrayBuffer(0);
 
